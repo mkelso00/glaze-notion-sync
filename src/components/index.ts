@@ -6,3 +6,5 @@ export { CategoryBadge } from './CategoryBadge';
 export { TimesheetCard } from './TimesheetCard';
 export { HoursRemainingCircle } from './HoursRemainingCircle';
 export { KanbanBoard } from './KanbanBoard';
+export { LoginForm } from './LoginForm';
+export { ProtectedDashboard } from './ProtectedDashboard';

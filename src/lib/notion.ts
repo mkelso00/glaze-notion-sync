@@ -59,6 +59,13 @@ function getTimestamp(property: unknown): string {
   return prop.created_time || prop.last_edited_time || new Date().toISOString();
 }
 
+// Helper to safely extract email
+function getEmail(property: unknown): string | null {
+  if (!property || typeof property !== 'object') return null;
+  const prop = property as { email?: string | null };
+  return prop.email || null;
+}
+
 export async function getTasks(): Promise<Task[]> {
   try {
     const response = await notion.databases.query({
@@ -251,4 +258,62 @@ export async function getTimesheetEntries(timesheetDatabaseId?: string): Promise
     console.error('Error fetching timesheet entries from Notion:', error);
     return [];
   }
+}
+
+// Client type for the clients database
+export interface NotionClient {
+  id: string;
+  name: string;
+  email: string | null;
+}
+
+// Get all clients from the clients overview database
+export async function getClients(): Promise<NotionClient[]> {
+  const clientsDatabaseId = process.env.NOTION_CLIENTS_DATABASE_ID;
+
+  if (!clientsDatabaseId) {
+    console.warn('NOTION_CLIENTS_DATABASE_ID not configured');
+    return [];
+  }
+
+  try {
+    const response = await notion.databases.query({
+      database_id: clientsDatabaseId,
+    });
+
+    return response.results.map((page) => {
+      const props = (page as { properties: Record<string, unknown> }).properties;
+      const pageId = (page as { id: string }).id;
+
+      // Try to get email from various property names
+      const email =
+        getEmail(props['Email']) ||
+        getRichText(props['Email']) ||
+        getRichText(props['Contact Email']) ||
+        null;
+
+      return {
+        id: pageId,
+        name: getTitle(props['Name'] || props['Client Name'] || props['Title']),
+        email,
+      };
+    }).filter((client) => client.name && client.email); // Only return clients with both name and email
+  } catch (error) {
+    console.error('Error fetching clients from Notion:', error);
+    return [];
+  }
+}
+
+// Get unique client names from tasks (fallback if no clients database)
+export async function getUniqueClientNames(): Promise<string[]> {
+  const tasks = await getTasks();
+  const clients = new Set<string>();
+
+  tasks.forEach((task) => {
+    if (task.client) {
+      clients.add(task.client);
+    }
+  });
+
+  return Array.from(clients);
 }
