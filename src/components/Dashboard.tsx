@@ -2,9 +2,8 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { RefreshCw, Sparkles } from 'lucide-react';
-import type { Task, TimesheetEntry } from '@/types/task';
+import type { Task } from '@/types/task';
 import { TaskCard } from './TaskCard';
-import { TimesheetCard } from './TimesheetCard';
 import { KanbanBoard } from './KanbanBoard';
 
 interface DashboardProps {
@@ -13,7 +12,6 @@ interface DashboardProps {
 
 export function Dashboard({ clientName }: DashboardProps) {
   const [tasks, setTasks] = useState<Task[]>([]);
-  const [timesheetEntries, setTimesheetEntries] = useState<TimesheetEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [generatingTitle, setGeneratingTitle] = useState<string | null>(null);
@@ -33,19 +31,6 @@ export function Dashboard({ clientName }: DashboardProps) {
 
       if (data.success) {
         setTasks(data.tasks);
-        // Generate timesheet entries from tasks
-        const entries: TimesheetEntry[] = data.tasks
-          .filter((task: Task) => task.hoursUsed > 0)
-          .map((task: Task) => ({
-            id: `${task.id}-timesheet`,
-            taskId: task.id,
-            taskName: task.title,
-            hours: Math.floor(task.hoursUsed),
-            minutes: Math.round((task.hoursUsed % 1) * 60),
-            category: task.category,
-            date: task.updatedAt,
-          }));
-        setTimesheetEntries(entries);
         setLastUpdated(new Date());
       } else {
         setError(data.error || 'Failed to fetch tasks');
@@ -89,8 +74,6 @@ export function Dashboard({ clientName }: DashboardProps) {
     }
   };
 
-  const totalHours = tasks.reduce((sum, task) => sum + task.hours, 0);
-  const usedHours = tasks.reduce((sum, task) => sum + task.hoursUsed, 0);
   const featuredTask = tasks[0];
 
   if (loading && tasks.length === 0) {
@@ -154,28 +137,6 @@ export function Dashboard({ clientName }: DashboardProps) {
       </header>
 
       <main className="max-w-7xl mx-auto px-6 py-12">
-        {/* Summary Stats */}
-        <section className="mb-16">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div className="bg-gradient-to-br from-pink-50 to-pink-100 rounded-2xl p-6">
-              <p className="text-gray-500 text-sm mb-1">Total Tasks</p>
-              <p className="text-4xl font-bold text-black">{tasks.length}</p>
-            </div>
-            <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-2xl p-6">
-              <p className="text-gray-500 text-sm mb-1">Total Hours</p>
-              <p className="text-4xl font-bold text-black">{totalHours}h</p>
-            </div>
-            <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl p-6">
-              <p className="text-gray-500 text-sm mb-1">Hours Used</p>
-              <p className="text-4xl font-bold text-black">{usedHours}h</p>
-            </div>
-            <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-2xl p-6">
-              <p className="text-gray-500 text-sm mb-1">Hours Remaining</p>
-              <p className="text-4xl font-bold text-black">{totalHours - usedHours}h</p>
-            </div>
-          </div>
-        </section>
-
         {/* Featured Task */}
         {featuredTask && (
           <section className="mb-16">
@@ -195,21 +156,6 @@ export function Dashboard({ clientName }: DashboardProps) {
             </div>
           </section>
         )}
-
-        {/* Timesheet Section */}
-        <section className="mb-16">
-          <h2 className="text-xl font-semibold mb-2">Rolling Hours & Time Tracking</h2>
-          <p className="text-gray-500 mb-6">
-            Unused hours roll over each quarter, with full transparency on all time spent.
-          </p>
-          <div className="max-w-xl">
-            <TimesheetCard
-              entries={timesheetEntries}
-              totalHours={totalHours}
-              usedHours={usedHours}
-            />
-          </div>
-        </section>
 
         {/* Kanban Board */}
         <section className="mb-16">
