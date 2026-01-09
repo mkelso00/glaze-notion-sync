@@ -79,8 +79,21 @@ async function getRelatedPageTitle(pageId: string): Promise<string> {
   try {
     const page = await notion.pages.retrieve({ page_id: pageId });
     const props = (page as { properties: Record<string, unknown> }).properties;
-    // Try common title property names
-    const title = getTitle(props['Name']) || getTitle(props['Title']) || getTitle(props['Client Name']) || '';
+
+    // Find the title property dynamically (it could be named anything)
+    let title = '';
+    for (const [, value] of Object.entries(props)) {
+      const prop = value as { type?: string; title?: Array<{ plain_text: string }> };
+      if (prop.type === 'title' && prop.title) {
+        title = prop.title.map((t) => t.plain_text).join('');
+        break;
+      }
+    }
+
+    // Fallback to common property names
+    if (!title) {
+      title = getTitle(props['Name']) || getTitle(props['Title']) || getTitle(props['Client Name']) || getTitle(props['Client']) || '';
+    }
 
     // Cache the result
     clientNameCache.set(pageId, title);
