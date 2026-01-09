@@ -22,9 +22,8 @@ export function Dashboard({ clientName }: DashboardProps) {
       setLoading(true);
       setError(null);
 
-      const url = clientName
-        ? `/api/tasks?client=${encodeURIComponent(clientName)}`
-        : '/api/tasks';
+      // Temporarily fetch all tasks to debug - will filter on frontend
+      const url = '/api/tasks';
 
       const response = await fetch(url);
       const data = await response.json();
