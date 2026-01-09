@@ -50,7 +50,7 @@ export function KanbanBoard({ tasks }: KanbanBoardProps) {
     (task) => task.status === 'Pending Review'
   );
   const completeTasks = tasks.filter(
-    (task) => task.status === 'Completed'
+    (task) => task.status === 'Completed' || task.status === 'Complete'
   );
 
   // Log all unique statuses for debugging
