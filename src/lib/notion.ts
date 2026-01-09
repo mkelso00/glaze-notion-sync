@@ -113,8 +113,40 @@ async function getRelatedPageTitle(pageId: string): Promise<string> {
 
 // Helper to get client name from relation or text/select
 async function getClientName(props: Record<string, unknown>): Promise<{ name: string | null; id: string | null }> {
+  // Log all property names to find the Client field
+  const propNames = Object.keys(props);
+
+  // Try different property names for Client
+  const clientPropNames = ['Client', 'client', 'Clients', 'clients', 'Customer', 'customer'];
+  let clientProp: unknown = null;
+  let foundPropName = '';
+
+  for (const name of clientPropNames) {
+    if (props[name]) {
+      clientProp = props[name];
+      foundPropName = name;
+      break;
+    }
+  }
+
+  // If not found, look for any property with 'client' in the name (case-insensitive)
+  if (!clientProp) {
+    for (const name of propNames) {
+      if (name.toLowerCase().includes('client')) {
+        clientProp = props[name];
+        foundPropName = name;
+        break;
+      }
+    }
+  }
+
+  if (!clientProp) {
+    console.log('Client property not found. Available props:', propNames);
+    return { name: null, id: null };
+  }
+
   // First try as relation
-  const clientRelation = getRelation(props['Client']);
+  const clientRelation = getRelation(clientProp);
   if (clientRelation.length > 0) {
     const clientId = clientRelation[0];
     const clientName = await getRelatedPageTitle(clientId);
@@ -122,45 +154,64 @@ async function getClientName(props: Record<string, unknown>): Promise<{ name: st
   }
 
   // Fall back to text or select
-  const clientText = getRichText(props['Client']) || getSelect(props['Client']);
+  const clientText = getRichText(clientProp) || getSelect(clientProp);
   return { name: clientText || null, id: null };
 }
 
 export async function getTasks(): Promise<Task[]> {
   try {
-    const response = await notion.databases.query({
-      database_id: DATABASE_ID,
-    });
+    const allResults: Task[] = [];
+    let hasMore = true;
+    let startCursor: string | undefined = undefined;
 
-    const tasks = await Promise.all(
-      response.results.map(async (page) => {
-        const props = (page as { properties: Record<string, unknown> }).properties;
-        const pageWithTimestamps = page as { id: string; created_time: string; last_edited_time: string };
+    // Paginate through all results, sorted by created time (newest first)
+    while (hasMore) {
+      const response = await notion.databases.query({
+        database_id: DATABASE_ID,
+        sorts: [
+          {
+            timestamp: 'created_time',
+            direction: 'descending',
+          },
+        ],
+        start_cursor: startCursor,
+        page_size: 100,
+      });
 
-        // Get client info (handles both relation and text/select)
-        const clientInfo = await getClientName(props);
+      const tasks = await Promise.all(
+        response.results.map(async (page) => {
+          const props = (page as { properties: Record<string, unknown> }).properties;
+          const pageWithTimestamps = page as { id: string; created_time: string; last_edited_time: string };
 
-        return {
-          id: pageWithTimestamps.id,
-          title: getTitle(props['Task name']) || getTitle(props['Name']) || getTitle(props['Title']),
-          aiTitle: getRichText(props['AI Title']) || undefined,
-          status: (getSelect(props['Status']) as TaskStatus) || 'Not Started',
-          dueDate: getDate(props['Due date']) || getDate(props['Due Date']),
-          priority: (getSelect(props['Priority']) as TaskPriority) || 'Medium',
-          hours: getNumber(props['Hours']) || getNumber(props['Estimated Hours']),
-          hoursUsed: getNumber(props['Hours Used']) || getNumber(props['Hours used']) || getNumber(props['Time Spent']),
-          client: clientInfo.name,
-          clientId: clientInfo.id,
-          category: (getSelect(props['Category']) as TaskCategory) || 'Other',
-          parentTaskId: getRelation(props['Parent task'] || props['Parent Task'])[0] || null,
-          subTaskIds: getRelation(props['Sub Tasks'] || props['Sub tasks'] || props['Subtasks']),
-          createdAt: pageWithTimestamps.created_time,
-          updatedAt: pageWithTimestamps.last_edited_time,
-        };
-      })
-    );
+          // Get client info (handles both relation and text/select)
+          const clientInfo = await getClientName(props);
 
-    return tasks;
+          return {
+            id: pageWithTimestamps.id,
+            title: getTitle(props['Task name']) || getTitle(props['Name']) || getTitle(props['Title']),
+            aiTitle: getRichText(props['AI Title']) || undefined,
+            status: (getSelect(props['Status']) as TaskStatus) || 'Not Started',
+            dueDate: getDate(props['Due date']) || getDate(props['Due Date']),
+            priority: (getSelect(props['Priority']) as TaskPriority) || 'Medium',
+            hours: getNumber(props['Hours']) || getNumber(props['Estimated Hours']),
+            hoursUsed: getNumber(props['Hours Used']) || getNumber(props['Hours used']) || getNumber(props['Time Spent']),
+            client: clientInfo.name,
+            clientId: clientInfo.id,
+            category: (getSelect(props['Category']) as TaskCategory) || 'Other',
+            parentTaskId: getRelation(props['Parent task'] || props['Parent Task'])[0] || null,
+            subTaskIds: getRelation(props['Sub Tasks'] || props['Sub tasks'] || props['Subtasks']),
+            createdAt: pageWithTimestamps.created_time,
+            updatedAt: pageWithTimestamps.last_edited_time,
+          };
+        })
+      );
+
+      allResults.push(...tasks);
+      hasMore = response.has_more;
+      startCursor = response.next_cursor || undefined;
+    }
+
+    return allResults;
   } catch (error) {
     console.error('Error fetching tasks from Notion:', error);
     return [];
