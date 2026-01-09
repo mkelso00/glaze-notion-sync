@@ -31,14 +31,21 @@ export function Dashboard({ clientName }: DashboardProps) {
       if (data.success) {
         // Filter tasks by client name on frontend
         let filteredTasks = data.tasks;
+        console.log('All tasks:', data.tasks.length);
+        console.log('Client names in tasks:', [...new Set(data.tasks.map((t: Task) => t.client))]);
+        console.log('Requested client:', clientName);
+
         if (clientName) {
           filteredTasks = data.tasks.filter((task: Task) => {
             if (!task.client) return false;
             const taskClient = task.client.toLowerCase();
             const requestedClient = clientName.toLowerCase();
-            return taskClient.includes(requestedClient) || requestedClient.includes(taskClient);
+            const match = taskClient.includes(requestedClient) || requestedClient.includes(taskClient);
+            console.log(`Comparing "${taskClient}" with "${requestedClient}": ${match}`);
+            return match;
           });
         }
+        console.log('Filtered tasks:', filteredTasks.length);
         setTasks(filteredTasks);
         setLastUpdated(new Date());
       } else {
