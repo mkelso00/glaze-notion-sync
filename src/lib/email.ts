@@ -32,8 +32,8 @@ export async function sendWeeklySummaryEmail(
   // Calculate summary stats
   const totalTasks = tasks.length;
   const completedTasks = tasks.filter((t) => t.status === 'Completed').length;
-  const inProgressTasks = tasks.filter((t) => t.status === 'In Progress').length;
-  const pendingReviewTasks = tasks.filter((t) => t.status === 'Pending Review').length;
+  const inProgressTasks = tasks.filter((t) => t.status === 'In Progress' || t.status === 'Investigating').length;
+  const onHoldTasks = tasks.filter((t) => t.status === 'On Hold' || t.status === 'Mark to Brief').length;
   const totalHours = tasks.reduce((sum, t) => sum + t.hours, 0);
   const usedHours = tasks.reduce((sum, t) => sum + t.hoursUsed, 0);
 
@@ -59,7 +59,7 @@ export async function sendWeeklySummaryEmail(
     totalTasks,
     completedTasks,
     inProgressTasks,
-    pendingReviewTasks,
+    onHoldTasks,
     totalHours,
     usedHours,
     upcomingTasks,
@@ -87,7 +87,7 @@ interface EmailData {
   totalTasks: number;
   completedTasks: number;
   inProgressTasks: number;
-  pendingReviewTasks: number;
+  onHoldTasks: number;
   totalHours: number;
   usedHours: number;
   upcomingTasks: Task[];
@@ -101,7 +101,7 @@ function generateEmailHtml(data: EmailData): string {
     totalTasks,
     completedTasks,
     inProgressTasks,
-    pendingReviewTasks,
+    onHoldTasks,
     totalHours,
     usedHours,
     upcomingTasks,
@@ -181,8 +181,8 @@ function generateEmailHtml(data: EmailData): string {
         <div style="color: #666; font-size: 14px;">In Progress</div>
       </div>
       <div style="background: white; padding: 20px; border-radius: 12px; text-align: center; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
-        <div style="font-size: 32px; font-weight: bold; color: #f59e0b;">${pendingReviewTasks}</div>
-        <div style="color: #666; font-size: 14px;">Pending Review</div>
+        <div style="font-size: 32px; font-weight: bold; color: #f59e0b;">${onHoldTasks}</div>
+        <div style="color: #666; font-size: 14px;">On Hold</div>
       </div>
       <div style="background: white; padding: 20px; border-radius: 12px; text-align: center; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
         <div style="font-size: 32px; font-weight: bold; color: #09090b;">${totalTasks}</div>

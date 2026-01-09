@@ -7,10 +7,11 @@ interface StatusBadgeProps {
 }
 
 const statusColors: Record<TaskStatus, { bg: string; text: string; dot: string }> = {
-  'Pending Review': { bg: 'bg-amber-500/20', text: 'text-amber-400', dot: 'bg-amber-500' },
-  'In Progress': { bg: 'bg-blue-500/20', text: 'text-blue-400', dot: 'bg-blue-500' },
+  'Investigating': { bg: 'bg-blue-500/20', text: 'text-blue-400', dot: 'bg-blue-500' },
+  'On Hold': { bg: 'bg-amber-500/20', text: 'text-amber-400', dot: 'bg-amber-500' },
+  'Mark to Brief': { bg: 'bg-pink-500/20', text: 'text-pink-400', dot: 'bg-pink-500' },
+  'In Progress': { bg: 'bg-cyan-500/20', text: 'text-cyan-400', dot: 'bg-cyan-500' },
   'Completed': { bg: 'bg-green-500/20', text: 'text-green-400', dot: 'bg-green-500' },
-  'On Hold': { bg: 'bg-gray-500/20', text: 'text-gray-400', dot: 'bg-gray-500' },
   'Not Started': { bg: 'bg-slate-500/20', text: 'text-slate-400', dot: 'bg-slate-500' },
 };
 
