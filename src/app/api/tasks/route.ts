@@ -9,14 +9,32 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const client = searchParams.get('client');
 
+    // Always get all tasks first for debugging
+    const allTasks = await getTasks();
+    const allClientNames = [...new Set(allTasks.map(t => t.client).filter(Boolean))];
+
+    console.log('All tasks count:', allTasks.length);
+    console.log('All client names found:', allClientNames);
+    console.log('Requested client:', client);
+
     let tasks;
     if (client) {
       tasks = await getTasksByClient(client);
+      console.log('Filtered tasks count:', tasks.length);
     } else {
-      tasks = await getTasks();
+      tasks = allTasks;
     }
 
-    return NextResponse.json({ tasks, success: true });
+    return NextResponse.json({
+      tasks,
+      success: true,
+      debug: {
+        totalTasks: allTasks.length,
+        clientNames: allClientNames,
+        requestedClient: client,
+        matchedTasks: tasks.length
+      }
+    });
   } catch (error) {
     console.error('API Error:', error);
     return NextResponse.json(
