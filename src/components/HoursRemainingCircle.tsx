@@ -12,19 +12,7 @@ export function HoursRemainingCircle({ totalHours, usedHours }: HoursRemainingCi
   const strokeDashoffset = circumference - (percentage / 100) * circumference;
 
   return (
-    <div className="relative w-32 h-32 bg-zinc-900 rounded-2xl flex items-center justify-center shadow-xl">
-      {/* Diagonal stripes background */}
-      <div className="absolute inset-0 overflow-hidden rounded-2xl opacity-20">
-        <svg width="100%" height="100%" className="absolute inset-0">
-          <defs>
-            <pattern id="stripes" patternUnits="userSpaceOnUse" width="8" height="8" patternTransform="rotate(45)">
-              <line x1="0" y1="0" x2="0" y2="8" stroke="white" strokeWidth="2" />
-            </pattern>
-          </defs>
-          <rect width="100%" height="100%" fill="url(#stripes)" />
-        </svg>
-      </div>
-
+    <div className="relative w-32 h-32 bg-gradient-to-br from-pink-500 via-purple-500 to-blue-500 rounded-2xl flex items-center justify-center shadow-xl">
       {/* Progress circle */}
       <svg className="w-24 h-24 transform -rotate-90" viewBox="0 0 100 100">
         {/* Background circle */}
@@ -33,7 +21,7 @@ export function HoursRemainingCircle({ totalHours, usedHours }: HoursRemainingCi
           cy="50"
           r="45"
           fill="none"
-          stroke="rgba(255,255,255,0.1)"
+          stroke="rgba(255,255,255,0.2)"
           strokeWidth="6"
         />
         {/* Progress circle */}
@@ -62,7 +50,7 @@ export function HoursRemainingCircle({ totalHours, usedHours }: HoursRemainingCi
       {/* Text in center */}
       <div className="absolute inset-0 flex flex-col items-center justify-center">
         <span className="text-2xl font-bold text-white">{remainingHours}h</span>
-        <span className="text-xs text-zinc-400">remaining</span>
+        <span className="text-xs text-white/70">remaining</span>
       </div>
     </div>
   );

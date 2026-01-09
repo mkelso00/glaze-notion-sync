@@ -7,11 +7,11 @@ interface CategoryBadgeProps {
 }
 
 const categoryColors: Record<TaskCategory, { bg: string; text: string }> = {
-  'Design': { bg: 'bg-emerald-500/20', text: 'text-emerald-400' },
-  'Development': { bg: 'bg-emerald-500/20', text: 'text-emerald-400' },
-  'Navigation': { bg: 'bg-purple-500/20', text: 'text-purple-400' },
-  'Shopify Functions': { bg: 'bg-blue-500/20', text: 'text-blue-400' },
-  'Other': { bg: 'bg-gray-500/20', text: 'text-gray-400' },
+  'Design': { bg: 'bg-pink-100', text: 'text-pink-700' },
+  'Development': { bg: 'bg-purple-100', text: 'text-purple-700' },
+  'Navigation': { bg: 'bg-blue-100', text: 'text-blue-700' },
+  'Shopify Functions': { bg: 'bg-indigo-100', text: 'text-indigo-700' },
+  'Other': { bg: 'bg-gray-100', text: 'text-gray-600' },
 };
 
 export function CategoryBadge({ category }: CategoryBadgeProps) {

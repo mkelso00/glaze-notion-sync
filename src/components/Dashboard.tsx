@@ -95,20 +95,20 @@ export function Dashboard({ clientName }: DashboardProps) {
 
   if (loading && tasks.length === 0) {
     return (
-      <div className="min-h-screen bg-zinc-950 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-emerald-500"></div>
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-black"></div>
       </div>
     );
   }
 
   if (error && tasks.length === 0) {
     return (
-      <div className="min-h-screen bg-zinc-950 flex items-center justify-center">
+      <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="text-center">
-          <p className="text-red-400 mb-4">{error}</p>
+          <p className="text-red-500 mb-4">{error}</p>
           <button
             onClick={fetchTasks}
-            className="px-4 py-2 bg-emerald-500 text-zinc-900 rounded-lg font-medium hover:bg-emerald-400 transition-colors"
+            className="px-4 py-2 bg-black text-white rounded-full font-medium hover:bg-gray-800 transition-colors"
           >
             Retry
           </button>
@@ -118,58 +118,88 @@ export function Dashboard({ clientName }: DashboardProps) {
   }
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-white">
+    <div className="min-h-screen bg-white text-black">
+      {/* Gradient Background Decoration */}
+      <div className="fixed top-0 right-0 w-1/2 h-screen pointer-events-none overflow-hidden -z-10">
+        <div className="absolute top-20 right-0 w-[600px] h-[600px] bg-gradient-to-br from-pink-200 via-purple-200 to-blue-200 rounded-full blur-3xl opacity-60"></div>
+      </div>
+
       {/* Header */}
-      <header className="border-b border-zinc-800">
+      <header className="border-b border-gray-100 bg-white/80 backdrop-blur-sm sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-bold">
-                {clientName ? `${clientName} Dashboard` : 'Client Dashboard'}
-              </h1>
-              {lastUpdated && (
-                <p className="text-sm text-zinc-500">
-                  Last updated: {lastUpdated.toLocaleTimeString()}
-                </p>
+            <div className="flex items-center gap-8">
+              <h1 className="text-2xl font-light tracking-[0.3em] text-black">GLAZE</h1>
+              {clientName && (
+                <span className="text-gray-400 text-sm">{clientName}</span>
               )}
             </div>
-            <button
-              onClick={fetchTasks}
-              disabled={loading}
-              className="flex items-center gap-2 px-4 py-2 bg-zinc-800 rounded-lg hover:bg-zinc-700 transition-colors disabled:opacity-50"
-            >
-              <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
-              Refresh
-            </button>
+            <div className="flex items-center gap-4">
+              {lastUpdated && (
+                <p className="text-sm text-gray-400">
+                  Updated {lastUpdated.toLocaleTimeString()}
+                </p>
+              )}
+              <button
+                onClick={fetchTasks}
+                disabled={loading}
+                className="flex items-center gap-2 px-4 py-2 bg-black text-white rounded-full hover:bg-gray-800 transition-colors disabled:opacity-50 text-sm"
+              >
+                <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+                Refresh
+              </button>
+            </div>
           </div>
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-6 py-8">
+      <main className="max-w-7xl mx-auto px-6 py-12">
+        {/* Summary Stats */}
+        <section className="mb-16">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="bg-gradient-to-br from-pink-50 to-pink-100 rounded-2xl p-6">
+              <p className="text-gray-500 text-sm mb-1">Total Tasks</p>
+              <p className="text-4xl font-bold text-black">{tasks.length}</p>
+            </div>
+            <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-2xl p-6">
+              <p className="text-gray-500 text-sm mb-1">Total Hours</p>
+              <p className="text-4xl font-bold text-black">{totalHours}h</p>
+            </div>
+            <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl p-6">
+              <p className="text-gray-500 text-sm mb-1">Hours Used</p>
+              <p className="text-4xl font-bold text-black">{usedHours}h</p>
+            </div>
+            <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-2xl p-6">
+              <p className="text-gray-500 text-sm mb-1">Hours Remaining</p>
+              <p className="text-4xl font-bold text-black">{totalHours - usedHours}h</p>
+            </div>
+          </div>
+        </section>
+
         {/* Featured Task */}
         {featuredTask && (
-          <section className="mb-12">
+          <section className="mb-16">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-xl font-semibold">Current Task</h2>
               <button
                 onClick={() => handleGenerateAITitle(featuredTask.id)}
                 disabled={generatingTitle === featuredTask.id}
-                className="flex items-center gap-2 px-3 py-1.5 bg-purple-500/20 text-purple-400 rounded-lg hover:bg-purple-500/30 transition-colors disabled:opacity-50"
+                className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-pink-500 to-purple-500 text-white rounded-full hover:opacity-90 transition-opacity disabled:opacity-50 text-sm"
               >
                 <Sparkles className={`w-4 h-4 ${generatingTitle === featuredTask.id ? 'animate-pulse' : ''}`} />
                 Generate AI Title
               </button>
             </div>
-            <div className="max-w-md">
+            <div className="max-w-lg">
               <TaskCard task={featuredTask} />
             </div>
           </section>
         )}
 
         {/* Timesheet Section */}
-        <section className="mb-12">
-          <h2 className="text-xl font-semibold mb-6">Rolling Hours & Time Tracking</h2>
-          <p className="text-zinc-400 mb-6">
+        <section className="mb-16">
+          <h2 className="text-xl font-semibold mb-2">Rolling Hours & Time Tracking</h2>
+          <p className="text-gray-500 mb-6">
             Unused hours roll over each quarter, with full transparency on all time spent.
           </p>
           <div className="max-w-xl">
@@ -182,9 +212,9 @@ export function Dashboard({ clientName }: DashboardProps) {
         </section>
 
         {/* Kanban Board */}
-        <section className="mb-12">
-          <h2 className="text-xl font-semibold mb-6">Task Dashboard</h2>
-          <p className="text-zinc-400 mb-6">
+        <section className="mb-16">
+          <h2 className="text-xl font-semibold mb-2">Task Dashboard</h2>
+          <p className="text-gray-500 mb-6">
             Track tasks easily with a dedicated dashboard.
           </p>
           <KanbanBoard tasks={tasks} />
@@ -201,7 +231,7 @@ export function Dashboard({ clientName }: DashboardProps) {
                   <button
                     onClick={() => handleGenerateAITitle(task.id)}
                     disabled={generatingTitle === task.id}
-                    className="absolute top-2 right-2 p-1.5 bg-purple-500/20 text-purple-400 rounded-lg hover:bg-purple-500/30 transition-colors disabled:opacity-50"
+                    className="absolute top-2 right-2 p-1.5 bg-gradient-to-r from-pink-500 to-purple-500 text-white rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50"
                     title="Generate AI Title"
                   >
                     <Sparkles className={`w-3 h-3 ${generatingTitle === task.id ? 'animate-pulse' : ''}`} />
@@ -211,32 +241,13 @@ export function Dashboard({ clientName }: DashboardProps) {
             ))}
           </div>
         </section>
-
-        {/* Summary Stats */}
-        <section className="mt-12 grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div className="bg-zinc-900 rounded-xl p-6 border border-zinc-800">
-            <p className="text-zinc-400 text-sm mb-1">Total Tasks</p>
-            <p className="text-3xl font-bold">{tasks.length}</p>
-          </div>
-          <div className="bg-zinc-900 rounded-xl p-6 border border-zinc-800">
-            <p className="text-zinc-400 text-sm mb-1">Total Hours</p>
-            <p className="text-3xl font-bold">{totalHours}h</p>
-          </div>
-          <div className="bg-zinc-900 rounded-xl p-6 border border-zinc-800">
-            <p className="text-zinc-400 text-sm mb-1">Hours Used</p>
-            <p className="text-3xl font-bold">{usedHours}h</p>
-          </div>
-          <div className="bg-zinc-900 rounded-xl p-6 border border-zinc-800">
-            <p className="text-zinc-400 text-sm mb-1">Hours Remaining</p>
-            <p className="text-3xl font-bold text-emerald-400">{totalHours - usedHours}h</p>
-          </div>
-        </section>
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-zinc-800 mt-12">
-        <div className="max-w-7xl mx-auto px-6 py-4 text-center text-zinc-500 text-sm">
-          Powered by Notion & AI
+      <footer className="border-t border-gray-100 mt-12">
+        <div className="max-w-7xl mx-auto px-6 py-6 flex items-center justify-between">
+          <p className="text-2xl font-light tracking-[0.3em] text-black">GLAZE</p>
+          <p className="text-gray-400 text-sm">Powered by Notion</p>
         </div>
       </footer>
     </div>

@@ -11,6 +11,7 @@ interface KanbanBoardProps {
 interface KanbanColumnProps {
   title: string;
   tasks: Task[];
+  gradient: string;
 }
 
 function KanbanCard({ task }: { task: Task }) {
@@ -29,20 +30,20 @@ function KanbanCard({ task }: { task: Task }) {
   const isOverdue = daysUntilDue !== null && daysUntilDue < 0;
 
   return (
-    <div className="bg-white rounded-xl p-4 shadow-sm border border-zinc-200 hover:shadow-md transition-shadow">
+    <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100 hover:shadow-md hover:border-gray-200 transition-all">
       <div className="flex items-start justify-between mb-2">
-        <h4 className="font-semibold text-zinc-900 flex-1 pr-2">
+        <h4 className="font-semibold text-gray-900 flex-1 pr-2">
           {task.aiTitle || task.title}
         </h4>
-        <button className="text-zinc-400 hover:text-zinc-600">
+        <button className="text-gray-400 hover:text-gray-600">
           <MoreVertical className="w-4 h-4" />
         </button>
       </div>
 
-      <p className="text-sm text-zinc-500 mb-3">{task.category}</p>
+      <p className="text-sm text-gray-500 mb-3">{task.category}</p>
 
       <div className="space-y-2">
-        <div className="flex items-center gap-2 text-sm text-zinc-500">
+        <div className="flex items-center gap-2 text-sm text-gray-500">
           <ChevronRight className="w-4 h-4" />
           <span>Priority: {task.priority}</span>
         </div>
@@ -58,10 +59,10 @@ function KanbanCard({ task }: { task: Task }) {
   );
 }
 
-function KanbanColumn({ title, tasks }: KanbanColumnProps) {
+function KanbanColumn({ title, tasks, gradient }: KanbanColumnProps) {
   return (
-    <div className="bg-zinc-100 rounded-2xl p-4 min-w-[300px]">
-      <div className="bg-zinc-900 text-white px-4 py-2 rounded-lg mb-4 text-center font-medium">
+    <div className="bg-gray-50 rounded-2xl p-4 min-w-[300px]">
+      <div className={`${gradient} text-white px-4 py-2 rounded-lg mb-4 text-center font-medium`}>
         {title}
       </div>
 
@@ -69,6 +70,9 @@ function KanbanColumn({ title, tasks }: KanbanColumnProps) {
         {tasks.map((task) => (
           <KanbanCard key={task.id} task={task} />
         ))}
+        {tasks.length === 0 && (
+          <p className="text-gray-400 text-center text-sm py-4">No tasks</p>
+        )}
       </div>
     </div>
   );
@@ -87,10 +91,22 @@ export function KanbanBoard({ tasks }: KanbanBoardProps) {
 
   return (
     <div className="flex gap-6 overflow-x-auto pb-4">
-      <KanbanColumn title="Design" tasks={designTasks} />
-      <KanbanColumn title="Development" tasks={developmentTasks} />
+      <KanbanColumn
+        title="Design"
+        tasks={designTasks}
+        gradient="bg-gradient-to-r from-pink-500 to-purple-500"
+      />
+      <KanbanColumn
+        title="Development"
+        tasks={developmentTasks}
+        gradient="bg-gradient-to-r from-purple-500 to-blue-500"
+      />
       {otherTasks.length > 0 && (
-        <KanbanColumn title="Other" tasks={otherTasks} />
+        <KanbanColumn
+          title="Other"
+          tasks={otherTasks}
+          gradient="bg-black"
+        />
       )}
     </div>
   );
