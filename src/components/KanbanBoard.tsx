@@ -14,9 +14,10 @@ interface KanbanColumnProps {
 function KanbanCard({ task }: { task: Task }) {
   return (
     <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100 hover:shadow-md hover:border-gray-200 transition-all">
-      <h4 className="font-medium text-gray-900">
+      <h4 className="font-medium text-gray-900 mb-1">
         {task.aiTitle || task.title}
       </h4>
+      <p className="text-xs text-gray-400">Status: {task.status}</p>
     </div>
   );
 }
@@ -41,16 +42,20 @@ function KanbanColumn({ title, tasks }: KanbanColumnProps) {
 }
 
 export function KanbanBoard({ tasks }: KanbanBoardProps) {
-  // Fixed three columns with their corresponding status mappings
+  // Exact status matching only
   const investigatingTasks = tasks.filter(
-    (task) => task.status === 'Investigating' || task.status === 'Not Started' || task.status === 'In Progress'
+    (task) => task.status === 'Investigating'
   );
   const pendingReviewTasks = tasks.filter(
-    (task) => task.status === 'Pending Review' || task.status === 'Mark to Brief' || task.status === 'On Hold'
+    (task) => task.status === 'Pending Review'
   );
   const completeTasks = tasks.filter(
     (task) => task.status === 'Completed'
   );
+
+  // Log all unique statuses for debugging
+  const allStatuses = [...new Set(tasks.map(t => t.status))];
+  console.log('All task statuses:', allStatuses);
 
   return (
     <div className="flex gap-6 overflow-x-auto pb-4">
