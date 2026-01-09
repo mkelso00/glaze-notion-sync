@@ -36,8 +36,19 @@ function getTitle(property: unknown): string {
 // Helper to safely extract select value
 function getSelect(property: unknown): string | null {
   if (!property || typeof property !== 'object') return null;
-  const prop = property as { select?: { name: string } | null };
-  return prop.select?.name || null;
+  const prop = property as { select?: { name: string } | null; status?: { name: string } | null };
+  return prop.select?.name || prop.status?.name || null;
+}
+
+// Helper to find status from any property with 'status' in the name
+function getSelectFromAnyStatusProp(props: Record<string, unknown>): string | null {
+  for (const [name, value] of Object.entries(props)) {
+    if (name.toLowerCase().includes('status')) {
+      const result = getSelect(value);
+      if (result) return result;
+    }
+  }
+  return null;
 }
 
 // Helper to safely extract number
@@ -184,7 +195,7 @@ export async function getTasks(): Promise<Task[]> {
           id: pageWithTimestamps.id,
           title: getTitle(props['Task name']) || getTitle(props['Name']) || getTitle(props['Title']),
           aiTitle: getRichText(props['AI Title']) || undefined,
-          status: (getSelect(props['Status']) as TaskStatus) || 'Not Started',
+          status: (getSelect(props['Status']) || getSelect(props['status']) || getSelectFromAnyStatusProp(props)) as TaskStatus || 'Not Started',
           dueDate: getDate(props['Due date']) || getDate(props['Due Date']),
           priority: (getSelect(props['Priority']) as TaskPriority) || 'Medium',
           hours: getNumber(props['Hours']) || getNumber(props['Estimated Hours']),
