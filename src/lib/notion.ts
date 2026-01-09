@@ -191,11 +191,20 @@ export async function getTasks(): Promise<Task[]> {
         // Get client info (handles both relation and text/select)
         const clientInfo = await getClientName(props);
 
+        // Debug: log raw status property
+        const rawStatus = props['Status'] || props['status'];
+        const statusValue = getSelect(props['Status']) || getSelect(props['status']) || getSelectFromAnyStatusProp(props);
+        console.log('Task status debug:', {
+          title: getTitle(props['Task name']) || getTitle(props['Name']),
+          rawStatus: JSON.stringify(rawStatus),
+          extractedStatus: statusValue
+        });
+
         return {
           id: pageWithTimestamps.id,
           title: getTitle(props['Task name']) || getTitle(props['Name']) || getTitle(props['Title']),
           aiTitle: getRichText(props['AI Title']) || undefined,
-          status: (getSelect(props['Status']) || getSelect(props['status']) || getSelectFromAnyStatusProp(props)) as TaskStatus || 'Not Started',
+          status: statusValue as TaskStatus || 'Not Started',
           dueDate: getDate(props['Due date']) || getDate(props['Due Date']),
           priority: (getSelect(props['Priority']) as TaskPriority) || 'Medium',
           hours: getNumber(props['Hours']) || getNumber(props['Estimated Hours']),
