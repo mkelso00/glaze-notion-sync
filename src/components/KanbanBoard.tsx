@@ -14,10 +14,9 @@ interface KanbanColumnProps {
 function KanbanCard({ task }: { task: Task }) {
   return (
     <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100 hover:shadow-md hover:border-gray-200 transition-all">
-      <h4 className="font-medium text-gray-900 mb-1">
+      <h4 className="font-medium text-gray-900">
         {task.aiTitle || task.title}
       </h4>
-      <p className="text-xs text-gray-400">Status: {task.status}</p>
     </div>
   );
 }
