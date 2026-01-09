@@ -61,9 +61,9 @@ function KanbanCard({ task }: { task: Task }) {
 
 function KanbanColumn({ title, tasks, gradient }: KanbanColumnProps) {
   return (
-    <div className="bg-gray-50 rounded-2xl p-4 min-w-[300px]">
+    <div className="bg-gray-50 rounded-2xl p-4 min-w-[300px] flex-1">
       <div className={`${gradient} text-white px-4 py-2 rounded-lg mb-4 text-center font-medium`}>
-        {title}
+        {title} ({tasks.length})
       </div>
 
       <div className="space-y-3">
@@ -79,35 +79,34 @@ function KanbanColumn({ title, tasks, gradient }: KanbanColumnProps) {
 }
 
 export function KanbanBoard({ tasks }: KanbanBoardProps) {
-  const designTasks = tasks.filter(
-    (task) => task.category === 'Design' || task.category === 'Navigation'
+  // Filter tasks by status for three columns
+  const investigatingTasks = tasks.filter(
+    (task) => task.status === 'Investigating'
   );
-  const developmentTasks = tasks.filter(
-    (task) => task.category === 'Development' || task.category === 'Shopify Functions'
+  const pendingReviewTasks = tasks.filter(
+    (task) => task.status === 'Pending Review'
   );
-  const otherTasks = tasks.filter(
-    (task) => task.category === 'Other'
+  const completedTasks = tasks.filter(
+    (task) => task.status === 'Completed'
   );
 
   return (
     <div className="flex gap-6 overflow-x-auto pb-4">
       <KanbanColumn
-        title="Design"
-        tasks={designTasks}
-        gradient="bg-gradient-to-r from-pink-500 to-purple-500"
+        title="Investigating"
+        tasks={investigatingTasks}
+        gradient="bg-gradient-to-r from-blue-500 to-purple-500"
       />
       <KanbanColumn
-        title="Development"
-        tasks={developmentTasks}
-        gradient="bg-gradient-to-r from-purple-500 to-blue-500"
+        title="Pending Review"
+        tasks={pendingReviewTasks}
+        gradient="bg-gradient-to-r from-purple-500 to-pink-500"
       />
-      {otherTasks.length > 0 && (
-        <KanbanColumn
-          title="Other"
-          tasks={otherTasks}
-          gradient="bg-black"
-        />
-      )}
+      <KanbanColumn
+        title="Complete"
+        tasks={completedTasks}
+        gradient="bg-gradient-to-r from-green-500 to-emerald-500"
+      />
     </div>
   );
 }

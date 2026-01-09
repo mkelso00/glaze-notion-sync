@@ -1,5 +1,6 @@
 export type TaskStatus =
   | 'Investigating'
+  | 'Pending Review'
   | 'On Hold'
   | 'Mark to Brief'
   | 'In Progress'

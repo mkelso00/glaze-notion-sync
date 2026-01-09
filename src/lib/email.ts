@@ -33,6 +33,7 @@ export async function sendWeeklySummaryEmail(
   const totalTasks = tasks.length;
   const completedTasks = tasks.filter((t) => t.status === 'Completed').length;
   const inProgressTasks = tasks.filter((t) => t.status === 'In Progress' || t.status === 'Investigating').length;
+  const pendingReviewTasks = tasks.filter((t) => t.status === 'Pending Review').length;
   const onHoldTasks = tasks.filter((t) => t.status === 'On Hold' || t.status === 'Mark to Brief').length;
   const totalHours = tasks.reduce((sum, t) => sum + t.hours, 0);
   const usedHours = tasks.reduce((sum, t) => sum + t.hoursUsed, 0);
