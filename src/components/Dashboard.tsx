@@ -29,7 +29,17 @@ export function Dashboard({ clientName }: DashboardProps) {
       const data = await response.json();
 
       if (data.success) {
-        setTasks(data.tasks);
+        // Filter tasks by client name on frontend
+        let filteredTasks = data.tasks;
+        if (clientName) {
+          filteredTasks = data.tasks.filter((task: Task) => {
+            if (!task.client) return false;
+            const taskClient = task.client.toLowerCase();
+            const requestedClient = clientName.toLowerCase();
+            return taskClient.includes(requestedClient) || requestedClient.includes(taskClient);
+          });
+        }
+        setTasks(filteredTasks);
         setLastUpdated(new Date());
       } else {
         setError(data.error || 'Failed to fetch tasks');
