@@ -153,26 +153,6 @@ export function Dashboard({ clientName }: DashboardProps) {
       </header>
 
       <main className="max-w-7xl mx-auto px-6 py-12">
-        {/* Featured Task */}
-        {featuredTask && (
-          <section className="mb-16">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-semibold">Current Task</h2>
-              <button
-                onClick={() => handleGenerateAITitle(featuredTask.id)}
-                disabled={generatingTitle === featuredTask.id}
-                className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-pink-500 to-purple-500 text-white rounded-full hover:opacity-90 transition-opacity disabled:opacity-50 text-sm"
-              >
-                <Sparkles className={`w-4 h-4 ${generatingTitle === featuredTask.id ? 'animate-pulse' : ''}`} />
-                Generate AI Title
-              </button>
-            </div>
-            <div className="max-w-lg">
-              <TaskCard task={featuredTask} />
-            </div>
-          </section>
-        )}
-
         {/* Kanban Board */}
         <section>
           <KanbanBoard tasks={tasks} />

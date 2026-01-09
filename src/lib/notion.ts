@@ -160,58 +160,47 @@ async function getClientName(props: Record<string, unknown>): Promise<{ name: st
 
 export async function getTasks(): Promise<Task[]> {
   try {
-    const allResults: Task[] = [];
-    let hasMore = true;
-    let startCursor: string | undefined = undefined;
+    // Get newest 100 tasks only (no pagination for speed)
+    const response = await notion.databases.query({
+      database_id: DATABASE_ID,
+      sorts: [
+        {
+          timestamp: 'created_time',
+          direction: 'descending',
+        },
+      ],
+      page_size: 100,
+    });
 
-    // Paginate through all results, sorted by created time (newest first)
-    while (hasMore) {
-      const response = await notion.databases.query({
-        database_id: DATABASE_ID,
-        sorts: [
-          {
-            timestamp: 'created_time',
-            direction: 'descending',
-          },
-        ],
-        start_cursor: startCursor,
-        page_size: 100,
-      });
+    const tasks = await Promise.all(
+      response.results.map(async (page) => {
+        const props = (page as { properties: Record<string, unknown> }).properties;
+        const pageWithTimestamps = page as { id: string; created_time: string; last_edited_time: string };
 
-      const tasks = await Promise.all(
-        response.results.map(async (page) => {
-          const props = (page as { properties: Record<string, unknown> }).properties;
-          const pageWithTimestamps = page as { id: string; created_time: string; last_edited_time: string };
+        // Get client info (handles both relation and text/select)
+        const clientInfo = await getClientName(props);
 
-          // Get client info (handles both relation and text/select)
-          const clientInfo = await getClientName(props);
+        return {
+          id: pageWithTimestamps.id,
+          title: getTitle(props['Task name']) || getTitle(props['Name']) || getTitle(props['Title']),
+          aiTitle: getRichText(props['AI Title']) || undefined,
+          status: (getSelect(props['Status']) as TaskStatus) || 'Not Started',
+          dueDate: getDate(props['Due date']) || getDate(props['Due Date']),
+          priority: (getSelect(props['Priority']) as TaskPriority) || 'Medium',
+          hours: getNumber(props['Hours']) || getNumber(props['Estimated Hours']),
+          hoursUsed: getNumber(props['Hours Used']) || getNumber(props['Hours used']) || getNumber(props['Time Spent']),
+          client: clientInfo.name,
+          clientId: clientInfo.id,
+          category: (getSelect(props['Category']) as TaskCategory) || 'Other',
+          parentTaskId: getRelation(props['Parent task'] || props['Parent Task'])[0] || null,
+          subTaskIds: getRelation(props['Sub Tasks'] || props['Sub tasks'] || props['Subtasks']),
+          createdAt: pageWithTimestamps.created_time,
+          updatedAt: pageWithTimestamps.last_edited_time,
+        };
+      })
+    );
 
-          return {
-            id: pageWithTimestamps.id,
-            title: getTitle(props['Task name']) || getTitle(props['Name']) || getTitle(props['Title']),
-            aiTitle: getRichText(props['AI Title']) || undefined,
-            status: (getSelect(props['Status']) as TaskStatus) || 'Not Started',
-            dueDate: getDate(props['Due date']) || getDate(props['Due Date']),
-            priority: (getSelect(props['Priority']) as TaskPriority) || 'Medium',
-            hours: getNumber(props['Hours']) || getNumber(props['Estimated Hours']),
-            hoursUsed: getNumber(props['Hours Used']) || getNumber(props['Hours used']) || getNumber(props['Time Spent']),
-            client: clientInfo.name,
-            clientId: clientInfo.id,
-            category: (getSelect(props['Category']) as TaskCategory) || 'Other',
-            parentTaskId: getRelation(props['Parent task'] || props['Parent Task'])[0] || null,
-            subTaskIds: getRelation(props['Sub Tasks'] || props['Sub tasks'] || props['Subtasks']),
-            createdAt: pageWithTimestamps.created_time,
-            updatedAt: pageWithTimestamps.last_edited_time,
-          };
-        })
-      );
-
-      allResults.push(...tasks);
-      hasMore = response.has_more;
-      startCursor = response.next_cursor || undefined;
-    }
-
-    return allResults;
+    return tasks;
   } catch (error) {
     console.error('Error fetching tasks from Notion:', error);
     return [];

@@ -41,11 +41,12 @@ function KanbanColumn({ title, tasks }: KanbanColumnProps) {
 }
 
 export function KanbanBoard({ tasks }: KanbanBoardProps) {
+  // Fixed three columns with their corresponding status mappings
   const investigatingTasks = tasks.filter(
-    (task) => task.status === 'Investigating'
+    (task) => task.status === 'Investigating' || task.status === 'Not Started' || task.status === 'In Progress'
   );
   const pendingReviewTasks = tasks.filter(
-    (task) => task.status === 'Pending Review'
+    (task) => task.status === 'Pending Review' || task.status === 'Mark to Brief' || task.status === 'On Hold'
   );
   const completeTasks = tasks.filter(
     (task) => task.status === 'Completed'
