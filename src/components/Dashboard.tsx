@@ -158,34 +158,8 @@ export function Dashboard({ clientName }: DashboardProps) {
         )}
 
         {/* Kanban Board */}
-        <section className="mb-16">
-          <h2 className="text-xl font-semibold mb-2">Task Dashboard</h2>
-          <p className="text-gray-500 mb-6">
-            Track tasks easily with a dedicated dashboard.
-          </p>
-          <KanbanBoard tasks={tasks} />
-        </section>
-
-        {/* All Tasks Grid */}
         <section>
-          <h2 className="text-xl font-semibold mb-6">All Tasks</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {tasks.map((task) => (
-              <div key={task.id} className="relative">
-                <TaskCard task={task} variant="compact" />
-                {!task.aiTitle && (
-                  <button
-                    onClick={() => handleGenerateAITitle(task.id)}
-                    disabled={generatingTitle === task.id}
-                    className="absolute top-2 right-2 p-1.5 bg-gradient-to-r from-pink-500 to-purple-500 text-white rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50"
-                    title="Generate AI Title"
-                  >
-                    <Sparkles className={`w-3 h-3 ${generatingTitle === task.id ? 'animate-pulse' : ''}`} />
-                  </button>
-                )}
-              </div>
-            ))}
-          </div>
+          <KanbanBoard tasks={tasks} />
         </section>
       </main>
 

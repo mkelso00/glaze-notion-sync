@@ -1,7 +1,7 @@
 'use client';
 
 import { differenceInDays, parseISO } from 'date-fns';
-import { MoreVertical, ChevronRight, Calendar } from 'lucide-react';
+import { Calendar } from 'lucide-react';
 import type { Task } from '@/types/task';
 
 interface KanbanBoardProps {
@@ -11,7 +11,6 @@ interface KanbanBoardProps {
 interface KanbanColumnProps {
   title: string;
   tasks: Task[];
-  gradient: string;
 }
 
 function KanbanCard({ task }: { task: Task }) {
@@ -31,38 +30,24 @@ function KanbanCard({ task }: { task: Task }) {
 
   return (
     <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100 hover:shadow-md hover:border-gray-200 transition-all">
-      <div className="flex items-start justify-between mb-2">
-        <h4 className="font-semibold text-gray-900 flex-1 pr-2">
-          {task.aiTitle || task.title}
-        </h4>
-        <button className="text-gray-400 hover:text-gray-600">
-          <MoreVertical className="w-4 h-4" />
-        </button>
-      </div>
+      <h4 className="font-medium text-gray-900 mb-2">
+        {task.aiTitle || task.title}
+      </h4>
 
-      <p className="text-sm text-gray-500 mb-3">{task.category}</p>
-
-      <div className="space-y-2">
-        <div className="flex items-center gap-2 text-sm text-gray-500">
-          <ChevronRight className="w-4 h-4" />
-          <span>Priority: {task.priority}</span>
+      {dueDateText && (
+        <div className={`flex items-center gap-2 text-sm ${isOverdue ? 'text-red-500' : 'text-gray-500'}`}>
+          <Calendar className="w-4 h-4" />
+          <span>{dueDateText}</span>
         </div>
-
-        {dueDateText && (
-          <div className={`flex items-center gap-2 text-sm ${isOverdue ? 'text-red-500' : 'text-emerald-500'}`}>
-            <Calendar className="w-4 h-4" />
-            <span>{dueDateText}</span>
-          </div>
-        )}
-      </div>
+      )}
     </div>
   );
 }
 
-function KanbanColumn({ title, tasks, gradient }: KanbanColumnProps) {
+function KanbanColumn({ title, tasks }: KanbanColumnProps) {
   return (
     <div className="bg-gray-50 rounded-2xl p-4 min-w-[300px] flex-1">
-      <div className={`${gradient} text-white px-4 py-2 rounded-lg mb-4 text-center font-medium`}>
+      <div className="bg-black text-white px-4 py-2 rounded-lg mb-4 text-center font-medium">
         {title} ({tasks.length})
       </div>
 
@@ -79,7 +64,6 @@ function KanbanColumn({ title, tasks, gradient }: KanbanColumnProps) {
 }
 
 export function KanbanBoard({ tasks }: KanbanBoardProps) {
-  // Filter tasks by status for three columns
   const investigatingTasks = tasks.filter(
     (task) => task.status === 'Investigating'
   );
@@ -92,21 +76,9 @@ export function KanbanBoard({ tasks }: KanbanBoardProps) {
 
   return (
     <div className="flex gap-6 overflow-x-auto pb-4">
-      <KanbanColumn
-        title="Investigating"
-        tasks={investigatingTasks}
-        gradient="bg-gradient-to-r from-blue-500 to-purple-500"
-      />
-      <KanbanColumn
-        title="Pending Review"
-        tasks={pendingReviewTasks}
-        gradient="bg-gradient-to-r from-purple-500 to-pink-500"
-      />
-      <KanbanColumn
-        title="Complete"
-        tasks={completedTasks}
-        gradient="bg-gradient-to-r from-green-500 to-emerald-500"
-      />
+      <KanbanColumn title="Investigating" tasks={investigatingTasks} />
+      <KanbanColumn title="Pending Review" tasks={pendingReviewTasks} />
+      <KanbanColumn title="Complete" tasks={completedTasks} />
     </div>
   );
 }
