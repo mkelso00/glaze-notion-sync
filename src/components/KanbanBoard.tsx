@@ -14,10 +14,9 @@ interface KanbanColumnProps {
 function KanbanCard({ task }: { task: Task }) {
   return (
     <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100 hover:shadow-md hover:border-gray-200 transition-all">
-      <h4 className="font-medium text-gray-900 mb-1">
+      <h4 className="font-medium text-gray-900">
         {task.aiTitle || task.title}
       </h4>
-      <p className="text-xs text-gray-400">{task.status}</p>
     </div>
   );
 }
@@ -42,32 +41,21 @@ function KanbanColumn({ title, tasks }: KanbanColumnProps) {
 }
 
 export function KanbanBoard({ tasks }: KanbanBoardProps) {
-  // Group tasks by their actual status values
-  const tasksByStatus = tasks.reduce((acc, task) => {
-    const status = task.status || 'Unknown';
-    if (!acc[status]) {
-      acc[status] = [];
-    }
-    acc[status].push(task);
-    return acc;
-  }, {} as Record<string, Task[]>);
-
-  const statuses = Object.keys(tasksByStatus);
-
-  // If no tasks at all, show empty columns
-  if (statuses.length === 0) {
-    return (
-      <div className="flex gap-6 overflow-x-auto pb-4">
-        <KanbanColumn title="All Tasks" tasks={tasks} />
-      </div>
-    );
-  }
+  const investigatingTasks = tasks.filter(
+    (task) => task.status === 'Investigating'
+  );
+  const pendingReviewTasks = tasks.filter(
+    (task) => task.status === 'Pending Review'
+  );
+  const completeTasks = tasks.filter(
+    (task) => task.status === 'Completed'
+  );
 
   return (
     <div className="flex gap-6 overflow-x-auto pb-4">
-      {statuses.map((status) => (
-        <KanbanColumn key={status} title={status} tasks={tasksByStatus[status]} />
-      ))}
+      <KanbanColumn title="Investigating" tasks={investigatingTasks} />
+      <KanbanColumn title="Pending Review" tasks={pendingReviewTasks} />
+      <KanbanColumn title="Complete" tasks={completeTasks} />
     </div>
   );
 }
