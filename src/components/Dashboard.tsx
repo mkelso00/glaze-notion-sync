@@ -165,9 +165,8 @@ export function Dashboard({ clientName }: DashboardProps) {
 
       {/* Footer */}
       <footer className="border-t border-gray-100 mt-12">
-        <div className="max-w-7xl mx-auto px-6 py-6 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-6 py-6">
           <p className="text-2xl font-light tracking-[0.3em] text-black">GLAZE</p>
-          <p className="text-gray-400 text-sm">Powered by Notion</p>
         </div>
       </footer>
     </div>
